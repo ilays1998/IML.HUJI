@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
+from plotly.subplots import make_subplots
 import plotly.io as pio
 pio.templates.default = "simple_white"
 
@@ -17,16 +18,33 @@ def load_data(filename: str):
     ----------
     filename: str
         Path to house prices dataset
-
     Returns
     -------
     Design matrix and response vector (prices) - either as a single
     DataFrame or a Tuple[DataFrame, Series]
     """
-    raise NotImplementedError()
+    a = pd.read_csv(filename)
+    a.head()
+    df = pd.DataFrame(a)
+    y = df.pop("price")
+    del df["waterfront"]
+    del df["view"]
+    del df["lat"]
+    del df["long"]
+    del df["yr_renovated"]
+    del df["date"]
 
 
-def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") -> NoReturn:
+    del df["id"]
+
+
+
+    return (df, y)
+
+
+
+
+def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = "result") -> NoReturn:
     """
     Create scatter plot between each feature and the response.
         - Plot title specifies feature name
@@ -36,26 +54,39 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
     ----------
     X : DataFrame of shape (n_samples, n_features)
         Design matrix of regression problem
-
     y : array-like of shape (n_samples, )
         Response vector to evaluate against
-
     output_path: str (default ".")
         Path to folder in which plots are saved
     """
-    raise NotImplementedError()
+    #blankIndex = [''] * len(X)
+    #X.index = blankIndex
+    X["response"] = y
+    cov = X.cov()
+    for column in X:
+        pearson = cov["response"][column] / (np.std(y) * np.std(X[column]))
+        fig = make_subplots(rows=1, cols=1).add_traces(
+            [go.Scatter(x=X[column], y=y, mode='markers',
+                        marker=dict(color="blue", size=3))]).update_layout(
+            title_text=r"$\text{correlation between " + column +" and response\n" + "   pearson correlation = " + str(pearson) + "}$",
+            xaxis_title=r"$\text{" + column + "}$",
+            yaxis_title=r"$\text{response}$",
+            height=500, width=1000)
+        pio.write_image(fig, "result/" + column + ".jpeg")
+
 
 
 if __name__ == '__main__':
     np.random.seed(0)
     # Question 1 - Load and preprocessing of housing prices dataset
-    raise NotImplementedError()
+    print(load_data("house_prices.csv"))
 
     # Question 2 - Feature evaluation with respect to response
-    raise NotImplementedError()
+    X, y = load_data("house_prices.csv")
+    #feature_evaluation(X, y)
 
     # Question 3 - Split samples into training- and testing sets.
-    raise NotImplementedError()
+    train_x, train_y, test_x, test_y = split_train_test(X, y)
 
     # Question 4 - Fit model over increasing percentages of the overall training data
     # For every percentage p in 10%, 11%, ..., 100%, repeat the following 10 times:
@@ -64,4 +95,4 @@ if __name__ == '__main__':
     #   3) Test fitted model over test set
     #   4) Store average and variance of loss over test set
     # Then plot average loss as function of training size with error ribbon of size (mean-2*std, mean+2*std)
-    raise NotImplementedError()
+    #raise NotImplementedError()
