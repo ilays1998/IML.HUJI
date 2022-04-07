@@ -18,7 +18,7 @@ def mean_square_error(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
 
     mse = y_true - y_pred
-    mse = np.sum(np.power(mse, 2)) / mse.size
+    mse = np.sum(np.power(mse, 2)) / mse.size()
     return mse
     raise NotImplementedError()
 

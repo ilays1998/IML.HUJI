@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     # Question 2 - Feature evaluation with respect to response
     X, y = load_data("house_prices.csv")
-    #feature_evaluation(X, y)
+    feature_evaluation(X, y)
 
     # Question 3 - Split samples into training- and testing sets.
     train_x, train_y, test_x, test_y = split_train_test(X, y)
@@ -95,4 +95,13 @@ if __name__ == '__main__':
     #   3) Test fitted model over test set
     #   4) Store average and variance of loss over test set
     # Then plot average loss as function of training size with error ribbon of size (mean-2*std, mean+2*std)
-    #raise NotImplementedError()
+    result = []
+    for p in range(10, 100, 10):
+        train_x_p, train_y_p, m ,n = split_train_test(train_x, train_y, p / 100)
+        linear_reg = LinearRegression()
+        linear_reg._fit(train_x_p.to_numpy(), train_y_p.to_numpy())
+
+        test_x_p, test_y_p, a, b = split_train_test(test_x, test_y, p / 100)
+        result.append(linear_reg._predict(test_x_p.to_numpy()))
+        print(linear_reg._loss(test_x_p.to_numpy(), test_y_p.to_numpy()))
+

@@ -4,6 +4,7 @@ from typing import NoReturn
 import numpy as np
 from numpy.linalg import pinv
 from IMLearn.metrics import loss_functions
+import pandas as pd
 
 
 class LinearRegression():
@@ -43,11 +44,12 @@ class LinearRegression():
         -----
         Fits model with or without an intercept depending on value of `self.include_intercept_`
         """
-        B = np.linalg.pinv(X)
-        self.coefs_ = B
-
-
-        raise NotImplementedError()
+        if self.include_intercept_ == True:
+            new_column = np.ones(np.size(X, 0))
+            X = np.insert(X, 0, new_column, axis=1)
+        X = np.nan_to_num(X)
+        B = pinv(X)
+        self.coefs_ = B @ y
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -61,9 +63,12 @@ class LinearRegression():
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
+        if self.include_intercept_ == True:
+            new_column = np.ones(np.size(X, 0))
+            X = np.insert(X, 0, new_column, axis=1)
+        X = np.nan_to_num(X)
         return X @ self.coefs_
 
-        raise NotImplementedError()
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -79,7 +84,9 @@ class LinearRegression():
         loss : float
             Performance under MSE loss function
         """
-        y_hat = self._predict(X)
+        if self.include_intercept_ == True:
+            new_column = np.ones(np.size(X, 0))
+            X = np.insert(X, 0, new_column, axis=1)
+        X = np.nan_to_num(X)
+        y_hat = X @ self.coefs_
         return loss_functions.mean_square_error(y, y_hat)
-
-        raise NotImplementedError()
